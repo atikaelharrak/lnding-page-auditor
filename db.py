@@ -3,7 +3,7 @@ db.py
 -----
 Persistence layer for the Landing Page Health Auditor.
 
-Uses SQLite (via Python's built-in sqlite3 module — no extra dependency
+Uses SQLite (via Python's built-in sqlite3 module, no extra dependency
 needed) to store every audit that's ever been run. This unlocks:
   - Audit history per URL (has this page been checked before? when?)
   - Trend tracking (is the score improving over time?)
@@ -13,12 +13,12 @@ Schema design note: `categories_json` stores the full category/results
 breakdown as a JSON blob rather than fully normalizing into separate
 `categories` and `check_results` tables. For a project this size, a
 fully normalized schema (3+ tables with foreign keys) would add real
-complexity — migrations, joins, more test surface — for a benefit we
+complexity ' migrations, joins, more test surface ' for a benefit we
 don't need yet (we never query "give me all failed checks named X
 across all audits"). Storing the report as JSON keeps the schema simple
 while still letting us query/sort on the fields that actually matter
 for history and trends (url, score, timestamp). This is a deliberate
-tradeoff, not an oversight — worth being able to explain in a review.
+tradeoff, not an oversight, worth being able to explain in a review.
 """
 
 import json
@@ -54,12 +54,12 @@ def get_db_path() -> Path:
 def get_connection(db_path: Path = None):
     """
     Context manager for a SQLite connection. Ensures the connection is
-    always closed, even if an error occurs mid-query — a common source
+    always closed, even if an error occurs mid-query, a common source
     of "database is locked" bugs when connections are left open.
     """
     path = db_path or DB_PATH
     conn = sqlite3.connect(path)
-    conn.row_factory = sqlite3.Row  # lets us access columns by name, e.g. row["url"]
+    conn.row_factory = sqlite3.Row  
     try:
         yield conn
     finally:
@@ -68,7 +68,7 @@ def get_connection(db_path: Path = None):
 
 def init_db(db_path: Path = None) -> None:
     """Create the audits table if it doesn't already exist. Safe to call
-    every time the app starts — CREATE TABLE IF NOT EXISTS is idempotent."""
+    every time the app starts, CREATE TABLE IF NOT EXISTS is idempotent."""
     with get_connection(db_path) as conn:
         conn.executescript(SCHEMA)
         conn.commit()
@@ -157,7 +157,7 @@ def get_recent_audits(limit: int = 20, db_path: Path = None) -> list[dict]:
 
 def get_score_trend(url: str, db_path: Path = None) -> list[dict]:
     """
-    Return a compact (timestamp, score) series for a URL, oldest first —
+    Return a compact (timestamp, score) series for a URL, oldest first,
     exactly what a trend chart needs, without the full category detail.
     """
     with get_connection(db_path) as conn:
