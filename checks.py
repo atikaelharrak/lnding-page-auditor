@@ -17,11 +17,11 @@ from urllib.parse import urlparse
 
 from crawler import PageData
 
-# Simple severity weights — used to compute the category score out of 100.
+# Simple severity weights, used to compute the category score out of 100.
 SEVERITY_WEIGHTS = {
     "critical": 25,
     "warning": 10,
-    "info": 0,  # informational only, doesn't dock points
+    "info": 0,  
 }
 
 
@@ -94,11 +94,6 @@ def _check_load_time(page: PageData) -> CheckResult:
 
 
 def _check_broken_images(page: PageData) -> CheckResult:
-    """
-    NOTE: this only flags obviously empty/missing src attributes found in
-    the HTML. Actually verifying every image URL returns 200 requires a
-    network call per image — that's a Week 2+ enhancement (see README).
-    """
     broken = [img for img in page.images if not img["src"]]
     if not broken:
         return CheckResult(
@@ -140,7 +135,7 @@ def _check_meta_robots(page: PageData) -> CheckResult:
         return CheckResult(
             "Meta robots / indexability", False, "warning",
             f"Page has robots meta set to '{robots}'. This blocks search engines "
-            "from indexing/following the page — intentional for private pages, "
+            "from indexing/following the page, intentional for private pages, "
             "but a problem if this page is meant to attract organic or referral traffic."
         )
     return CheckResult(
@@ -152,7 +147,7 @@ def _check_meta_robots(page: PageData) -> CheckResult:
 def _check_broken_links_sample(page: PageData, sample_size: int = 8) -> CheckResult:
     """
     Checks a sample of internal links for reachability (HEAD request).
-    Sampled (not exhaustive) to keep audits fast — full-site link
+    Sampled (not exhaustive) to keep audits fast, full-site link
     checking is a good Week 2+ extension.
     """
     import requests
@@ -173,7 +168,7 @@ def _check_broken_links_sample(page: PageData, sample_size: int = 8) -> CheckRes
     if not broken:
         return CheckResult(
             "Internal links", True, "info",
-            f"Checked {len(internal_links)} internal link(s) — all reachable."
+            f"Checked {len(internal_links)} internal link(s), all reachable."
         )
     return CheckResult(
         "Internal links", False, "critical",
@@ -187,11 +182,11 @@ def _check_viewport_meta(page: PageData) -> CheckResult:
     if viewport:
         return CheckResult(
             "Mobile viewport", True, "info",
-            "Viewport meta tag present — page is configured for responsive/mobile display."
+            "Viewport meta tag present, page is configured for responsive/mobile display."
         )
     return CheckResult(
         "Mobile viewport", False, "warning",
-        "No viewport meta tag found — page may not render well on mobile devices."
+        "No viewport meta tag found, page may not render well on mobile devices."
     )
 
 
