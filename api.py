@@ -6,7 +6,7 @@ REST API for the Landing Page Health Auditor.
 This is a proper JSON API, separate from the HTML-rendering routes in
 app.py. The goal: any client (the web frontend, a script, a future
 Slack bot, a scheduled job) can trigger an audit or read history by
-calling these endpoints — nobody has to parse HTML to use this tool
+calling these endpoints, nobody has to parse HTML to use this tool
 programmatically.
 
 Implemented as a Flask Blueprint rather than routes directly on `app`,
@@ -27,7 +27,7 @@ Endpoints:
 Caching: both POST /api/audit and POST /api/jobs check cache.py before
 running a fresh crawl. If a recent-enough audit already exists for the
 requested URL (see cache.DEFAULT_CACHE_TTL_MINUTES), that cached result
-is returned instead of re-crawling — protects target sites from being
+is returned instead of re-crawling, protects target sites from being
 hit repeatedly and speeds up repeated checks. Pass "force": true in the
 request body to bypass the cache and always run a fresh crawl.
 """
@@ -48,7 +48,7 @@ def error_response(message: str, status: int = 400):
 
 @api.route("/health", methods=["GET"])
 def health():
-    """Simple liveness check — useful for uptime monitors or quick sanity checks."""
+    """Simple liveness check, useful for uptime monitors or quick sanity checks."""
     return jsonify({"status": "ok"})
 
 
@@ -59,7 +59,7 @@ def run_audit():
 
     By default, checks the cache first (db.py's audits table) and
     returns a cached result if the URL was audited within the last
-    DEFAULT_CACHE_TTL_MINUTES — this avoids hammering a target site
+    DEFAULT_CACHE_TTL_MINUTES, this avoids hammering a target site
     with repeated crawls in a short window. Set "force": true in the
     request body to always run a fresh crawl regardless of cache.
 
@@ -94,7 +94,7 @@ def run_audit():
 def submit_job():
     """
     Submit an audit as a BACKGROUND job. Returns immediately with a job
-    id — the audit itself runs on a worker thread, unless a
+    id, the audit itself runs on a worker thread, unless a
     recent-enough cached result already exists (see /api/audit's cache
     behavior), in which case the job is created already "done".
     Poll GET /api/jobs/<job_id> to check progress and retrieve the
@@ -173,7 +173,7 @@ def get_history():
 @api.route("/trend", methods=["GET"])
 def get_trend():
     """
-    Get the (timestamp, score) trend series for a URL, oldest first —
+    Get the (timestamp, score) trend series for a URL, oldest first,
     exactly what a frontend chart needs.
     Required query param: ?url=...
     """
