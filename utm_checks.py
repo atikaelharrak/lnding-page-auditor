@@ -4,7 +4,7 @@ utm_checks.py
 Week 2 scope: Tracking & UTM Integrity Checks.
 
 Analyzes the outbound links already extracted by crawler.py (PageData.links)
-and checks how well they're set up for campaign tracking — critical for an
+and checks how well they're set up for campaign tracking, critical for an
 affiliate/performance marketing business where every click needs to be
 attributable to a source, campaign, and medium.
 
@@ -18,12 +18,9 @@ from dataclasses import dataclass
 from urllib.parse import urlparse, parse_qs
 
 from crawler import PageData
-from checks import CheckResult  # reuse the same result shape as Week 1
+from checks import CheckResult  
 
-# The parameters that make up a standard UTM tracking set.
-# utm_source, utm_medium, and utm_campaign are considered the "required"
-# trio for a link to be reliably attributable; utm_term/utm_content are
-# optional extras used for finer-grained tracking (e.g. A/B tests, ad copy).
+
 REQUIRED_UTM_PARAMS = {"utm_source", "utm_medium", "utm_campaign"}
 OPTIONAL_UTM_PARAMS = {"utm_term", "utm_content"}
 ALL_UTM_PARAMS = REQUIRED_UTM_PARAMS | OPTIONAL_UTM_PARAMS
@@ -49,9 +46,7 @@ def run_utm_checks(page: PageData) -> list[CheckResult]:
             message=f"Could not analyze links: {page.error}",
         )]
 
-    # Only external links matter for UTM tracking — internal navigation
-    # links (menu, footer, etc.) aren't campaign traffic sources and
-    # shouldn't be expected to carry UTM parameters.
+
     external_links = [l for l in page.links if not l["is_internal"]]
     analyses = [_analyze_link(l["href"]) for l in external_links]
 
@@ -133,13 +128,13 @@ def _check_required_params_complete(analyses: list[LinkAnalysis]) -> CheckResult
         )
 
     details = [
-        f"{a.href[:70]}{'...' if len(a.href) > 70 else ''} — missing: {', '.join(sorted(a.missing_required))}"
+        f"{a.href[:70]}{'...' if len(a.href) > 70 else ''} ,missing: {', '.join(sorted(a.missing_required))}"
         for a in incomplete
     ]
     return CheckResult(
         "Required UTM parameters", False, "warning",
         f"{len(incomplete)} of {len(tagged)} tagged link(s) are missing required "
-        "UTM parameters (utm_source, utm_medium, or utm_campaign) — incomplete "
+        "UTM parameters (utm_source, utm_medium, or utm_campaign), incomplete "
         "tagging breaks attribution in analytics tools.",
         details=details,
     )
@@ -148,7 +143,7 @@ def _check_required_params_complete(analyses: list[LinkAnalysis]) -> CheckResult
 def _check_naming_consistency(analyses: list[LinkAnalysis]) -> CheckResult:
     """
     Flags inconsistent casing/format in utm_source and utm_medium values,
-    e.g. 'Facebook' vs 'facebook' vs 'FB' — these fragment reporting in
+    e.g. 'Facebook' vs 'facebook' vs 'FB',these fragment reporting in
     analytics tools even though they mean the same thing.
     """
     tagged = [a for a in analyses if a.has_any_utm]
@@ -160,16 +155,10 @@ def _check_naming_consistency(analyses: list[LinkAnalysis]) -> CheckResult:
 
     issues = []
     for param in ("utm_source", "utm_medium"):
-        # query_params values can be a list when a parameter key was
-        # duplicated in the URL (e.g. ?utm_source=a&utm_source=b) — take
-        # the first occurrence for naming-consistency purposes; the
-        # duplicate-key issue itself is caught separately by
-        # _check_malformed_query_strings.
         raw_values = [a.query_params.get(param) for a in tagged if a.query_params.get(param)]
         values = [v[0] if isinstance(v, list) else v for v in raw_values]
         if not values:
             continue
-        # Same value but different casing = inconsistency risk
         lower_map = Counter(v.lower() for v in values)
         distinct_raw = set(values)
         for lower_val, count in lower_map.items():
@@ -184,7 +173,7 @@ def _check_naming_consistency(analyses: list[LinkAnalysis]) -> CheckResult:
         )
     return CheckResult(
         "UTM naming consistency", False, "warning",
-        f"{len(issues)} naming inconsistency pattern(s) found — these fragment "
+        f"{len(issues)} naming inconsistency pattern(s) found, these fragment "
         "reporting in analytics tools even though they refer to the same source.",
         details=issues,
     )
@@ -193,7 +182,7 @@ def _check_naming_consistency(analyses: list[LinkAnalysis]) -> CheckResult:
 def _check_duplicate_tracking_links(external_links: list[dict]) -> CheckResult:
     """
     Flags links pointing to the same destination + same UTM params more
-    than once on the page — usually a copy-paste mistake, and can inflate
+    than once on the page, usually a copy-paste mistake, and can inflate
     or confuse click counts depending on how the tracking pixel fires.
     """
     href_counts = Counter(l["href"] for l in external_links)
@@ -209,7 +198,7 @@ def _check_duplicate_tracking_links(external_links: list[dict]) -> CheckResult:
     return CheckResult(
         "Duplicate tracking links", False, "warning",
         f"{len(duplicates)} external link(s) appear more than once on the page "
-        "with identical URLs/parameters — check whether this is intentional.",
+        "with identical URLs/parameters, check whether this is intentional.",
         details=details,
     )
 
@@ -242,10 +231,10 @@ def _check_malformed_query_strings(external_links: list[dict]) -> CheckResult:
         duplicate_keys = [k for k, c in keys_seen.items() if c > 1]
 
         if has_empty_value:
-            malformed.append(f"{href[:70]}{'...' if len(href) > 70 else ''} — has empty parameter value(s)")
+            malformed.append(f"{href[:70]}{'...' if len(href) > 70 else ''}, has empty parameter value(s)")
         if duplicate_keys:
             malformed.append(
-                f"{href[:70]}{'...' if len(href) > 70 else ''} — duplicate parameter key(s): {', '.join(duplicate_keys)}"
+                f"{href[:70]}{'...' if len(href) > 70 else ''}, duplicate parameter key(s): {', '.join(duplicate_keys)}"
             )
 
     if not malformed:
