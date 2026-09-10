@@ -6,9 +6,9 @@ Caching / rate-limiting layer for audits.
 Why this exists: crawling a page makes real HTTP requests to a
 third-party site (the technical checks fetch the page, the link
 checker sends HEAD requests to sampled internal links). If the same
-URL gets audited repeatedly in a short window — someone refreshing the
+URL gets audited repeatedly in a short window, someone refreshing the
 web page, a script polling in a loop, a demo running the same URL
-several times — that's unnecessary load on the target site and slower
+several times, that's unnecessary load on the target site and slower
 for the person waiting on the result.
 
 This module checks the database (via db.get_most_recent_audit) before
@@ -19,7 +19,7 @@ Design choice: this cache lives in the SAME SQLite database as audit
 history, not a separate cache store (e.g. Redis / an in-memory dict).
 Reasoning: we already store every audit with a timestamp for history
 purposes, so "is there a recent one?" is one query against data we
-already have — no second source of truth to keep in sync, no
+already have, no second source of truth to keep in sync, no
 additional infrastructure. The tradeoff: this cache doesn't survive
 being asked "give me a sub-second lookup at high request volume" the
 way an in-memory/Redis cache would, but at this project's scale
@@ -33,10 +33,7 @@ from datetime import datetime, timedelta, timezone
 
 import db
 
-# How fresh a past audit needs to be to count as a cache hit. Chosen as
-# a reasonable default for a QA tool -- long enough to meaningfully
-# reduce repeat load on a target site, short enough that a real fix
-# someone just made to their landing page shows up again soon.
+
 DEFAULT_CACHE_TTL_MINUTES = 10
 
 
@@ -83,7 +80,7 @@ def cached_audit_to_report_dict(cached_audit: dict) -> dict:
     Reshape a cached database row (db.py's dict shape) into the same
     dict shape report.report_to_dict() produces, so callers (the API,
     the web frontend) can treat a cache hit exactly like a fresh
-    report — no special-casing needed downstream.
+    report, no special-casing needed downstream.
     """
     return {
         "url": cached_audit["url"],
