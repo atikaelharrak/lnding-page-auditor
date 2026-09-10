@@ -26,16 +26,16 @@ site_auditor/
 ├── utm_checks.py         # Tracking/UTM integrity checks
 ├── form_checks.py         # Lead-form quality checks
 ├── report.py               # Combines all checks into one scored report
-├── db.py                     # SQLite persistence — stores every audit run
-├── cache.py                   # Rate-limiting/caching — avoids re-crawling recently-audited URLs
+├── db.py                     # SQLite persistence, stores every audit run
+├── cache.py                   # Rate-limiting/caching, avoids re-crawling recently-audited URLs
 ├── jobs.py                     # Background job processing for async audits
-├── api.py                       # REST API (Flask Blueprint) — JSON endpoints
+├── api.py                       # REST API (Flask Blueprint), JSON endpoints
 ├── app.py                        # Flask web frontend (HTML) + registers the API
 ├── main.py                        # CLI entry point
 ├── templates/index.html            # Web report page
 ├── static/style.css                 # Styling
 ├── tests/                             # 206 tests across every module (see below)
-├── .github/workflows/tests.yml         # CI — runs the test suite on every push/PR
+├── .github/workflows/tests.yml         # CI: runs the test suite on every push/PR
 ├── pytest.ini
 └── requirements.txt
 ```
@@ -145,14 +145,14 @@ pytest -v                          # see every test name
 
 | File | Covers |
 |---|---|
-| `tests/conftest.py` | Shared `make_page()` helper — builds `PageData` from synthetic HTML, no network. |
+| `tests/conftest.py` | Shared `make_page()` helper, builds `PageData` from synthetic HTML, no network. |
 | `tests/test_crawler.py` | HTML extraction: images, links, forms, meta tags. |
 | `tests/test_crawler_network.py` | Network error handling, URL normalization, + 2 real-network tests. |
 | `tests/test_checks.py` | Technical health checks. |
 | `tests/test_utm_checks.py` | UTM/tracking checks, including a regression test for a duplicate-query-key bug. |
 | `tests/test_form_checks.py` | Lead-form quality checks. |
 | `tests/test_report.py` | Shared report-building logic, category weighting. |
-| `tests/test_db.py` | SQLite persistence — save/retrieve/history/trend queries. |
+| `tests/test_db.py` | SQLite persistence: save/retrieve/history/trend queries. |
 | `tests/test_cache.py` | TTL-based cache hit/miss logic, boundary conditions. |
 | `tests/test_jobs.py` | Background job lifecycle, genuine-async verification, failure handling. |
 | `tests/test_api.py` | Every REST endpoint, including caching behavior end-to-end. |
@@ -168,7 +168,7 @@ manually during development.
 
 ## Design notes and tradeoffs
 
-These are deliberate choices made for this project's scope — worth
+These are deliberate choices made for this project's scope, worth
 being able to explain in a review, since "why didn't you use X" is a
 common follow-up question:
 
@@ -178,12 +178,12 @@ common follow-up question:
   deployment.
 - **Audit results stored as a JSON blob (`categories_json`), not a
   fully normalized schema.** We never need to query "all failed checks
-  named X across every audit ever run" — only "give me the audits for
+  named X across every audit ever run", only "give me the audits for
   this URL" and "give me the score trend." A 3+ table normalized schema
   would add migration/join complexity for no benefit we actually use.
 - **Plain `threading.ThreadPoolExecutor`, not Celery/RQ, for background
   jobs.** Audits are I/O-bound (waiting on network responses), so
-  threads are sufficient — no need for separate worker processes or a
+  threads are sufficient, no need for separate worker processes or a
   message broker. The job store is in-memory and doesn't survive a
   server restart, which is fine for this scope; moving job state into
   the database would be the natural next step if that mattered.
@@ -203,7 +203,7 @@ surfaced: `unittest.mock.patch()` only patches for the duration of its
 `with` block on the *calling* thread. Since audit jobs run on a
 separate worker thread from a `ThreadPoolExecutor`, if the `with`
 block exited before the worker thread actually called the mocked
-function, the patch was already undone — and a real network request
+function, the patch was already undone, and a real network request
 would slip through instead of the mock, causing intermittent test
 failures. Fixed by ensuring every test polls for job completion
 *while still inside* the patch context, guaranteeing the mock stays
@@ -213,12 +213,12 @@ by running the affected test file 5 times in a row with zero flakiness
 
 ## Known limitations / possible future extensions
 
-- No authentication on the API — fine for a local/internal tool, would
+- No authentication on the API : fine for a local/internal tool, would
   need addressing before any public deployment.
 - Job state doesn't survive a server restart (in-memory only).
-- Still doesn't render JavaScript-heavy pages — a good candidate for a
+- Still doesn't render JavaScript-heavy pages, a good candidate for a
   Playwright-based crawler upgrade if real target pages turn out to be
   JS-heavy SPAs.
 - No rate limiting on the API endpoints themselves (only on re-crawling
-  the same URL) — a public-facing deployment would want per-client
+  the same URL), a public-facing deployment would want per-client
   request throttling too.
