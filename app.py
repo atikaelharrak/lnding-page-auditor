@@ -12,7 +12,7 @@ This file (app.py) is now just the HTML-rendering layer: it registers
 the API blueprint under /api, and its own "/" route calls report.py +
 db.py directly (same as the API does) to render a human-friendly page.
 The HTML frontend and the JSON API are two independent consumers of the
-same underlying logic — neither depends on the other, which is what
+same underlying logic, neither depends on the other, which is what
 lets a script or another service use /api/* without ever touching HTML.
 
 Run locally:
@@ -30,9 +30,7 @@ from report import build_report
 app = Flask(__name__)
 app.register_blueprint(api_blueprint)
 
-# Ensure the database and its table exist before the app starts serving
-# requests. init_db() is idempotent (CREATE TABLE IF NOT EXISTS), so
-# this is safe to run every time the app boots.
+
 db.init_db()
 
 
@@ -52,15 +50,9 @@ def index():
                 report = build_report(submitted_url)
                 db.save_audit(report)
             except Exception as e:
-                # Defensive catch-all: build_report/fetch_page already handle
-                # network errors gracefully via PageData.error, but this
-                # guards against any unexpected exception so the page never
-                # shows a raw Flask error trace to the user.
                 error = f"Something went wrong while auditing this URL: {e}"
 
             if report is not None:
-                # Show past audits for this URL, if any exist, so the
-                # person can see whether the score is improving over time.
                 history = db.get_audit_history(submitted_url, limit=5)
 
     return render_template(
@@ -73,6 +65,4 @@ def index():
 
 
 if __name__ == "__main__":
-    # debug=True is fine for local development / demoing during the
-    # internship; would be turned off for any real deployment.
     app.run(debug=True)
