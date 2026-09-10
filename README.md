@@ -11,9 +11,9 @@ internship project, in weekly increments.
 ## What it does
 
 Point it at a URL and it checks:
-- **Technical health** — HTTPS, load time, broken images/links, alt text, mobile viewport, meta-robots/indexability
-- **Tracking & UTM integrity** — UTM parameter coverage, completeness, naming consistency, duplicate/malformed tracking links
-- **Lead form quality** — CAPTCHA/anti-bot protection, honeypot fields, required-field validation, secure form submission
+- **Technical health** : HTTPS, load time, broken images/links, alt text, mobile viewport, meta-robots/indexability
+- **Tracking & UTM integrity** : UTM parameter coverage, completeness, naming consistency, duplicate/malformed tracking links
+- **Lead form quality** : CAPTCHA/anti-bot protection, honeypot fields, required-field validation, secure form submission
 
 Results come back as a 0–100 score per category plus an overall score, with specific pass/warning/critical findings and suggested fixes.
 
