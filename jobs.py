@@ -4,7 +4,7 @@ jobs.py
 Background job processing for audits.
 
 Why this exists: an audit involves a real network request plus parsing
-HTML — typically 0.5-3 seconds, sometimes more for a slow site. Running
+HTML, typically 0.5-3 seconds, sometimes more for a slow site. Running
 that synchronously inside a web request works, but it means the caller
 (browser or API client) sits there blocking the whole time, and a slow
 target site directly becomes a slow response from OUR server.
@@ -21,7 +21,7 @@ survive a server restart), pulling in Redis + a task queue library
 would add real operational complexity (a separate broker process to
 run and monitor) for a benefit this project doesn't need yet. The
 job-status pattern implemented here (submit -> poll -> get result) is
-the same pattern Celery/RQ use under the hood — swapping the in-memory
+the same pattern Celery/RQ use under the hood, swapping the in-memory
 store for Redis and this thread pool for Celery workers later would be
 a natural next step if this tool needed to scale beyond one machine,
 without changing the API shape callers depend on.
@@ -133,7 +133,7 @@ def create_completed_job_from_cache(url: str, cached_result: dict) -> str:
     Register a job that's already "done" because a cache hit made a
     fresh crawl unnecessary. This lets /api/jobs return a consistent
     job-shaped response (id, status, result) whether or not the audit
-    actually ran on a worker thread — callers polling GET /api/jobs/<id>
+    actually ran on a worker thread, callers polling GET /api/jobs/<id>
     don't need to special-case cache hits.
     """
     job_id = str(uuid.uuid4())
