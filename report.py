@@ -10,7 +10,7 @@ print_report() function, which meant the web frontend would have had
 to duplicate it or import CLI-printing code by mistake.
 
 This module extracts that logic into a single build_report() function
-that returns a plain, JSON-serializable-friendly data structure —
+that returns a plain, JSON-serializable-friendly data structure,
 CATEGORIES stays the single source of truth for which check categories
 exist and how they're weighted, used by both the CLI and the web app.
 """
@@ -34,7 +34,7 @@ CATEGORIES = [
 class CategoryReport:
     name: str
     score: int
-    results: list  # list of CheckResult (from checks.py)
+    results: list  
 
 
 @dataclass
@@ -43,14 +43,14 @@ class AuditReport:
     final_url: str
     fetch_error: str | None
     overall_score: int
-    categories: list  # list of CategoryReport
+    categories: list  
 
 
 def build_report(url: str) -> AuditReport:
     """
     Fetch the given URL once, run every check category against it, and
     return a single combined AuditReport. This is the one place both
-    main.py and app.py call into — keeps them from drifting out of sync.
+    main.py and app.py call into, keeps them from drifting out of sync.
     """
     page = fetch_page(url)
 
