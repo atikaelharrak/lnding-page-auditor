@@ -1,7 +1,7 @@
 # Landing Page Health Auditor
 
 A tool that audits any landing page for technical health, tracking/UTM
-integrity, and lead-form quality — built as a software engineering
+integrity, and lead-form quality, built as a software engineering
 internship project, in weekly increments.
 
 [![Tests](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/tests.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/tests.yml)
