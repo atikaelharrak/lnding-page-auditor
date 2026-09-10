@@ -9,7 +9,7 @@ Responsibilities (Week 1 scope):
 - Extract raw building blocks other checkers will need:
   images, links, forms, meta tags, response headers, timing
 
-This module does NOT decide what's "good" or "bad" — it just gathers
+This module does NOT decide what's "good" or "bad", it just gathers
 facts. Scoring/judgement logic lives in checks.py, kept separate on
 purpose so each part is easy to test and extend in later weeks.
 """
@@ -48,7 +48,7 @@ class PageData:
 def fetch_page(url: str, timeout: int = DEFAULT_TIMEOUT) -> PageData:
     """
     Fetch a URL and return a PageData object with raw HTML + metadata.
-    Never raises on network/HTTP errors — errors are captured in
+    Never raises on network/HTTP errors, errors are captured in
     PageData.error so the rest of the pipeline can report them gracefully
     instead of crashing mid-audit.
     """
