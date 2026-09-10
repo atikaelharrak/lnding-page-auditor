@@ -5,7 +5,7 @@ Week 3 scope: Lead Form Quality Checks.
 
 Analyzes the forms already extracted by crawler.py (PageData.forms) and
 checks for basic quality/anti-fraud signals relevant to affiliate lead
-generation — this is where "traffic quality" ultimately gets tested,
+generation, this is where "traffic quality" ultimately gets tested,
 since a broken or fraud-prone form is where bad leads get captured.
 
 Follows the same pattern as checks.py (Week 1) and utm_checks.py (Week 2):
@@ -17,7 +17,7 @@ import re
 from dataclasses import dataclass
 
 from crawler import PageData
-from checks import CheckResult  # reuse the same result shape as other weeks
+from checks import CheckResult  
 
 # Common CAPTCHA/anti-bot service signatures to look for in a form's raw HTML.
 # Checking the raw HTML (not just parsed fields) because CAPTCHA widgets are
@@ -27,9 +27,9 @@ CAPTCHA_SIGNATURES = [
     "g-recaptcha",
     "hcaptcha",
     "h-captcha",
-    "turnstile",       # Cloudflare Turnstile
+    "turnstile",       
     "cf-turnstile",
-    "captcha",         # generic catch-all, checked last / lowest confidence
+    "captcha",         
 ]
 
 # Field names/types commonly used as honeypots (hidden fields meant to
@@ -38,7 +38,7 @@ HONEYPOT_NAME_HINTS = ["honeypot", "hp_", "bot_field", "trap", "winnie", "do_not
 
 # A minimal set of field types/names that suggest this is a genuine lead
 # capture form (as opposed to e.g. a newsletter-only email field or a
-# site search box) — used to decide whether deeper checks are worth running.
+# site search box), used to decide whether deeper checks are worth running.
 LEAD_FORM_FIELD_HINTS = ["email", "phone", "tel", "name", "first_name", "last_name"]
 
 
@@ -127,14 +127,14 @@ def _check_forms_present(page: PageData, analyses: list[FormAnalysis]) -> CheckR
         return CheckResult(
             "Lead form presence", True, "info",
             "No forms found on this page. If this page is meant to capture "
-            "leads, that's worth double-checking — otherwise no action needed."
+            "leads, that's worth double-checking, otherwise no action needed."
         )
     lead_forms = [a for a in analyses if a.looks_like_lead_form]
     if not lead_forms:
         return CheckResult(
             "Lead form presence", True, "info",
             f"Found {len(page.forms)} form(s), but none look like lead-capture "
-            "forms (no email/phone/name fields detected) — likely search or "
+            "forms (no email/phone/name fields detected), likely search or "
             "newsletter forms. Skipping deeper lead-form checks."
         )
     return CheckResult(
@@ -158,14 +158,14 @@ def _check_captcha_presence(lead_forms: list[FormAnalysis]) -> CheckResult:
         return CheckResult(
             "CAPTCHA / anti-bot protection", False, "critical",
             f"{len(missing)} of {len(lead_forms)} lead form(s) have no detectable "
-            "CAPTCHA or anti-bot protection — these forms are exposed to bot "
+            "CAPTCHA or anti-bot protection, these forms are exposed to bot "
             "submissions, which directly hurts lead quality."
         )
     return CheckResult(
         "CAPTCHA / anti-bot protection", False, "warning",
         f"{len(low_confidence)} lead form(s) mention 'captcha' generically but "
         "no specific recognized provider (reCAPTCHA/hCaptcha/Turnstile) was "
-        "detected — worth confirming it's actually functional, not just a label."
+        "detected, worth confirming it's actually functional, not just a label."
     )
 
 
@@ -196,7 +196,7 @@ def _check_required_field_validation(lead_forms: list[FormAnalysis]) -> CheckRes
     return CheckResult(
         "Required field validation", False, "warning",
         f"{len(without_required)} of {len(lead_forms)} lead form(s) have no "
-        "'required' attribute on any field — this allows empty submissions, "
+        "'required' attribute on any field, this allows empty submissions, "
         "which can inflate junk lead volume."
     )
 
@@ -222,7 +222,7 @@ def _check_form_action_configured(lead_forms: list[FormAnalysis], page: PageData
         "Form submission endpoint", False, "critical",
         f"{len(broken)} of {len(lead_forms)} lead form(s) have a missing or "
         "suspicious 'action' attribute (empty, or pointing back at the same "
-        "page) — this form may not actually submit anywhere.",
+        "page), this form may not actually submit anywhere.",
     )
 
 
@@ -236,5 +236,5 @@ def _check_https_form_submission(lead_forms: list[FormAnalysis]) -> CheckResult:
     return CheckResult(
         "Secure form submission", False, "critical",
         f"{len(insecure)} lead form(s) submit to an insecure http:// endpoint "
-        "— lead data (name, email, phone) would be sent unencrypted.",
+        ", lead data (name, email, phone) would be sent unencrypted.",
     )
