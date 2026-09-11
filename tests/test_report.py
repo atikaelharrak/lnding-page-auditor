@@ -1,7 +1,7 @@
 """
 test_report.py
 ---------------
-Tests for report.py — the shared report-building module used by both
+Tests for report.py : the shared report-building module used by both
 main.py (CLI) and app.py (web frontend).
 
 Uses unittest.mock to replace fetch_page so these tests don't depend on
@@ -101,7 +101,6 @@ class TestReportToDict:
             report = build_report("https://example.com")
 
         as_dict = report_to_dict(report)
-        # Should not raise — confirms every nested value is JSON-safe
         serialized = json.dumps(as_dict)
         assert "overall_score" in serialized
 
