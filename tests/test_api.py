@@ -1,13 +1,13 @@
 """
 test_api.py
 -----------
-Tests for api.py — the REST API blueprint.
+Tests for api.py : the REST API blueprint.
 
 Uses Flask's test client against the real app (with the API blueprint
 registered), and a temporary database per test so these tests never
 touch the real audits.db and can't interfere with each other.
 
-fetch_page is mocked so these tests stay fast and offline — same
+fetch_page is mocked so these tests stay fast and offline, same
 pattern as the rest of the test suite.
 
 Job-endpoint tests (TestSubmitJobEndpoint, TestGetJobStatusEndpoint)
@@ -136,10 +136,6 @@ class TestListAuditsEndpoint:
 
     def test_limit_param_is_respected(self, client):
         with patch("report.fetch_page", return_value=_mock_page()):
-            # force=True bypasses the cache so each call is a genuinely
-            # new audit row -- otherwise repeated identical requests
-            # would correctly return the same cached result (see
-            # TestAuditCaching below), and there'd only be 1 row to list.
             for _ in range(5):
                 client.post("/api/audit", json={"url": "https://example.com", "force": True})
 
@@ -149,7 +145,7 @@ class TestListAuditsEndpoint:
 
     def test_limit_is_clamped_to_max_100(self, client):
         resp = client.get("/api/audits?limit=99999")
-        assert resp.status_code == 200  # doesn't error, just clamps internally
+        assert resp.status_code == 200 
 
 
 class TestGetAuditByIdEndpoint:
@@ -182,8 +178,6 @@ class TestHistoryEndpoint:
 
     def test_returns_history_for_audited_url(self, client):
         with patch("report.fetch_page", return_value=_mock_page()):
-            # force=True so both calls create separate history rows,
-            # rather than the second being served from cache.
             client.post("/api/audit", json={"url": "https://example.com", "force": True})
             client.post("/api/audit", json={"url": "https://example.com", "force": True})
 
@@ -221,7 +215,7 @@ class TestSubmitJobEndpoint:
             assert resp.status_code == 202
             assert "id" in data
             assert data["status"] in ("pending", "running")
-            _poll_job_via_api(client, data["id"])  # let it finish before patch exits
+            _poll_job_via_api(client, data["id"]) 
 
     def test_missing_url_returns_400(self, client):
         resp = client.post("/api/jobs", json={})
@@ -248,8 +242,7 @@ class TestGetJobStatusEndpoint:
             job_id = resp.get_json()["id"]
             final = _poll_job_via_api(client, job_id)
 
-        # The job's result should include the database id assigned by
-        # db.save_audit, proving the background job persisted correctly.
+
         assert final["result"]["id"] is not None
         history_resp = client.get("/api/history?url=https://example.com")
         assert history_resp.get_json()["count"] == 1
@@ -281,8 +274,6 @@ class TestAuditCaching:
             client.post("/api/audit", json={"url": "https://example.com"})
             resp2 = client.post("/api/audit", json={"url": "https://example.com"})
 
-        # fetch_page should only have been called ONCE -- the second
-        # request should have been served from cache, not re-crawled.
         assert mock_fetch.call_count == 1
         assert resp2.get_json().get("cached") is True
 
@@ -305,7 +296,6 @@ class TestAuditCaching:
             client.post("/api/audit", json={"url": "https://example.com"})
             resp2 = client.post("/api/audit", json={"url": "https://example.com", "force": True})
 
-        # force=True should have triggered a SECOND real fetch_page call.
         assert mock_fetch.call_count == 2
         assert resp2.get_json().get("cached") is False
 
@@ -314,8 +304,6 @@ class TestAuditCaching:
             client.post("/api/audit", json={"url": "https://site-a.com"})
             client.post("/api/audit", json={"url": "https://site-b.com"})
 
-        # Two distinct URLs should both trigger real crawls -- neither
-        # should be treated as a cache hit for the other.
         assert mock_fetch.call_count == 2
 
     def test_job_endpoint_also_uses_cache(self, client):
@@ -325,9 +313,6 @@ class TestAuditCaching:
             job_id = resp2.get_json()["id"]
             final = _poll_job_via_api(client, job_id)
 
-        # The job should be immediately "done" from cache -- no second
-        # real fetch_page call, and status 200 (not 202 Accepted, since
-        # nothing was actually queued for background processing).
         assert mock_fetch.call_count == 1
         assert resp2.status_code == 200
         assert final["status"] == "done"
