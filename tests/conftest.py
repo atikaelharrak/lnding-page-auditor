@@ -5,12 +5,12 @@ Shared pytest fixtures/helpers for the test suite.
 
 The key idea: checks.py and utm_checks.py both operate on a PageData
 object, not on live network responses. So tests build PageData objects
-directly from synthetic HTML strings — fast, reliable, and don't depend
+directly from synthetic HTML strings: fast, reliable, and don't depend
 on any real website being reachable or staying in a particular state.
 
 Network-dependent tests (does the crawler actually work against a real
 URL) are kept separate and marked so they can be skipped in offline/CI
-environments — see test_crawler_network.py.
+environments, see test_crawler_network.py.
 """
 
 from urllib.parse import urlparse
@@ -31,7 +31,7 @@ def make_page(html: str, url: str = "https://example-landingpage.com", status_co
     page = PageData(url=url)
     page.final_url = url
     page.status_code = status_code
-    page.load_time_ms = 100.0  # arbitrary "fast" default for tests
+    page.load_time_ms = 100.0
     page.html = html
     page.soup = BeautifulSoup(html, "html.parser")
     _extract_building_blocks(page)
