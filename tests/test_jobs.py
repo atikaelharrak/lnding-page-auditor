@@ -1,7 +1,7 @@
 """
 test_jobs.py
 ------------
-Tests for jobs.py — background job processing.
+Tests for jobs.py : background job processing.
 
 These tests exercise real threading (the ThreadPoolExecutor is not
 mocked), since the whole point of this module is concurrent execution.
@@ -13,13 +13,13 @@ call happens INSIDE the `with patch("report.fetch_page", ...)` block,
 not after it. The audit itself runs on a background worker thread, and
 if the `with` block exits before that thread actually calls
 fetch_page, the mock patch is already undone and the REAL network call
-runs instead — a genuine race condition that showed up during
+runs instead, a genuine race condition that showed up during
 development as an intermittent test failure. Keeping the wait inside
 the patch context guarantees the mock is still active for the whole
 time the worker thread might need it.
 
 fetch_page is still mocked (no real network calls), and slow_fetch()
-is used in one test to add an artificial delay — this proves jobs are
+is used in one test to add an artificial delay, this proves jobs are
 genuinely asynchronous (status is not immediately "done"), rather than
 the executor just running so fast the async behavior can't be observed.
 """
@@ -49,7 +49,7 @@ def _wait_for_job(job_id: str, timeout: float = POLL_TIMEOUT_SECONDS):
     """
     Poll a job until it reaches a terminal state (done/failed) or times
     out. MUST be called while any relevant mock.patch() context is
-    still active — see module docstring.
+    still active, see module docstring.
     """
     deadline = time.time() + timeout
     while time.time() < deadline:
@@ -131,10 +131,10 @@ class TestJobLifecycle:
         with patch("report.fetch_page", side_effect=slow_fetch):
             job_id = jobs.submit_audit_job("https://example.com", save_to_db=False)
             # Check status immediately -- the slow fetch should not have
-            # completed yet, so status must NOT be a terminal state.
+            # completed yet, so status must not be a terminal state
             job = jobs.get_job(job_id)
             assert job.status in (jobs.JobStatus.PENDING, jobs.JobStatus.RUNNING)
-            _wait_for_job(job_id)  # let it finish before the patch is undone
+            _wait_for_job(job_id)  
 
 
 class TestJobFailureHandling:
