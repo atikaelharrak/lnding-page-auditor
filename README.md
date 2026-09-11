@@ -4,9 +4,6 @@ A tool that audits any landing page for technical health, tracking/UTM
 integrity, and lead-form quality, built as a software engineering
 internship project, in weekly increments.
 
-[![Tests](https://github.com/atikaelharrak/lnding-page-auditor/actions/workflows/tests.yml/badge.svg)](https://github.com/atikaelharrak/lnding-page-auditor/actions/workflows/tests.yml)
-
-*(Replace `YOUR_USERNAME/YOUR_REPO` above with your actual GitHub path once pushed — GitHub will then show a live passing/failing badge here.)*
 
 ## What it does
 
