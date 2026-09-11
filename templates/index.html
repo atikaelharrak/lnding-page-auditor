@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Landing Page Health Auditor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="page">
+        <header>
+            <h1>Landing Page Health Auditor</h1>
+            <p class="subtitle">Technical health, tracking/UTM integrity, and lead-form quality — in one report.</p>
+        </header>
+
+        <form method="POST" class="url-form">
+            <input
+                type="text"
+                name="url"
+                placeholder="Enter a URL, e.g. cubehead.info"
+                value="{{ submitted_url }}"
+                autofocus
+            >
+            <button type="submit">Audit</button>
+        </form>
+
+        {% if error %}
+            <div class="alert alert-error">{{ error }}</div>
+        {% endif %}
+
+        {% if report %}
+            {% if report.fetch_error %}
+                <div class="alert alert-error">
+                    Could not fully audit <strong>{{ report.url }}</strong>: {{ report.fetch_error }}
+                </div>
+            {% endif %}
+
+            <section class="overall-score">
+                <div class="score-circle score-{{ 'good' if report.overall_score >= 80 else ('okay' if report.overall_score >= 50 else 'bad') }}">
+                    {{ report.overall_score }}
+                </div>
+                <div class="overall-meta">
+                    <h2>Overall Health Score</h2>
+                    <p class="audited-url">{{ report.final_url }}</p>
+                </div>
+            </section>
+
+            {% for category in report.categories %}
+            <section class="category">
+                <div class="category-header">
+                    <h3>{{ category.name }}</h3>
+                    <span class="category-score score-{{ 'good' if category.score >= 80 else ('okay' if category.score >= 50 else 'bad') }}">
+                        {{ category.score }}/100
+                    </span>
+                </div>
+                <ul class="checks-list">
+                    {% for r in category.results %}
+                    <li class="check-item severity-{{ r.severity }} {{ 'passed' if r.passed else 'failed' }}">
+                        <span class="check-icon">{{ '✓' if r.passed else ('!' if r.severity == 'critical' else '⚠') }}</span>
+                        <div class="check-body">
+                            <span class="check-name">{{ r.name }}</span>
+                            <p class="check-message">{{ r.message }}</p>
+                            {% if r.details %}
+                            <ul class="check-details">
+                                {% for d in r.details[:5] %}
+                                <li>{{ d }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+            {% endfor %}
+
+            {% if history and history|length > 1 %}
+            <section class="history">
+                <h3>Audit History for This URL</h3>
+                <p class="history-note">Showing the last {{ history|length }} audit(s), most recent first.</p>
+                <table class="history-table">
+                    <thead>
+                        <tr><th>When</th><th>Overall Score</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for past in history %}
+                        <tr>
+                            <td>{{ past.created_at }}</td>
+                            <td class="score-{{ 'good' if past.overall_score >= 80 else ('okay' if past.overall_score >= 50 else 'bad') }}">
+                                {{ past.overall_score }}/100
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            {% endif %}
+        {% endif %}
+
+        <footer>
+            <p>Internal QA tool — Landing Page Health Auditor. Built during the software engineering internship.</p>
+        </footer>
+    </div>
+</body>
+</html>
