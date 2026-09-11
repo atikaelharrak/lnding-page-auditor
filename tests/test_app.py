@@ -1,7 +1,7 @@
 """
 test_app.py
 -----------
-Tests for app.py — the Flask web frontend.
+Tests for app.py : the Flask web frontend.
 
 Uses Flask's built-in test client, which simulates HTTP requests
 in-process without needing a real running server. Network-dependent
