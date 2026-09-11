@@ -27,7 +27,7 @@ class TestUrlNormalization:
         """
         We can't guarantee network access in every test environment, so
         this test only checks the URL normalization happens BEFORE the
-        request is sent — it mocks requests.get to avoid a real call.
+        request is sent, it mocks requests.get to avoid a real call.
         """
         with patch("crawler.requests.get") as mock_get:
             mock_response = MagicMock()
@@ -93,7 +93,6 @@ class TestErrorHandling:
             page = fetch_page("https://example.com/missing")
             assert page.error is not None
             assert "404" in page.error
-            # soup should NOT be populated for failed responses
             assert page.soup is None
 
     def test_successful_response_has_no_error(self):
