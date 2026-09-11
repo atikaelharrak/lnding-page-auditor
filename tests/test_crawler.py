@@ -4,7 +4,7 @@ test_crawler.py
 Tests for crawler.py's extraction logic: given raw HTML, does it
 correctly pull out images, links, forms, and meta tags into PageData?
 
-These tests do NOT make real network requests — they build PageData
+These tests do NOT make real network requests, they build PageData
 objects directly from HTML strings (see conftest.py's make_page helper).
 Network behavior (timeouts, SSL errors, etc.) is tested separately in
 test_crawler_network.py.
@@ -27,7 +27,7 @@ class TestImageExtraction:
         assert page.images[0]["has_alt"] is False
 
     def test_flags_image_with_empty_alt_as_missing(self):
-        """An alt="" is present in the DOM but empty — should still count as missing."""
+        """An alt="" is present in the DOM but empty, should still count as missing."""
         html = '<img src="/banner.jpg" alt="">'
         page = make_page(html)
         assert page.images[0]["has_alt"] is False
