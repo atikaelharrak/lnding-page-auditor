@@ -1,7 +1,7 @@
 """
 test_form_checks.py
 --------------------
-Tests for form_checks.py — the Week 3 lead-form quality checks.
+Tests for form_checks.py : the Week 3 lead-form quality checks.
 
 Covers form analysis (CAPTCHA detection, honeypot detection, lead-form
 classification) plus each of the 5 checks that run when at least one
@@ -250,7 +250,7 @@ class TestRunFormChecksIntegration:
         html = '<form action="/search"><input type="text" name="q"></form>'
         page = make_page(html)
         results = run_form_checks(page)
-        assert len(results) == 1  # only "Lead form presence", no deep checks run
+        assert len(results) == 1  
 
     def test_well_built_lead_form_passes_everything(self):
         html = '''
@@ -270,4 +270,4 @@ class TestRunFormChecksIntegration:
         page = make_page(html, url="https://example.com/landing")
         results = run_form_checks(page)
         failed = [r for r in results if not r.passed]
-        assert len(failed) >= 3  # captcha, honeypot, required, action all fail
+        assert len(failed) >= 3 
