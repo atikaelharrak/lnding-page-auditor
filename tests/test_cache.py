@@ -1,12 +1,12 @@
 """
 test_cache.py
 -------------
-Tests for cache.py — the caching/rate-limiting layer.
+Tests for cache.py : the caching/rate-limiting layer.
 
 Uses a temporary, isolated database per test (same pattern as
 test_db.py). Where a test needs to simulate an "old" cached audit
 (past the TTL), it inserts a row directly with a manipulated
-created_at timestamp rather than waiting in real time — waiting
+created_at timestamp rather than waiting in real time, waiting
 several real minutes in a test suite would be impractical.
 """
 
@@ -65,7 +65,7 @@ class TestCheckCache:
         result = cache.check_cache("https://example.com", db_path=temp_db)
         assert result.hit is True
         assert result.audit is not None
-        assert result.age_seconds < 5  # just saved, should be near-instant
+        assert result.age_seconds < 5  
 
     def test_miss_when_audit_is_older_than_ttl(self, temp_db):
         old_timestamp = (datetime.now(timezone.utc) - timedelta(minutes=20)).isoformat()
@@ -73,7 +73,7 @@ class TestCheckCache:
 
         result = cache.check_cache("https://example.com", ttl_minutes=10, db_path=temp_db)
         assert result.hit is False
-        assert result.age_seconds > 1000  # roughly 20 minutes in seconds
+        assert result.age_seconds > 1000  
 
     def test_hit_when_older_audit_is_within_a_longer_ttl(self, temp_db):
         old_timestamp = (datetime.now(timezone.utc) - timedelta(minutes=20)).isoformat()
@@ -110,7 +110,6 @@ class TestCheckCache:
     def test_uses_most_recent_audit_when_multiple_exist(self, temp_db):
         old_timestamp = (datetime.now(timezone.utc) - timedelta(minutes=20)).isoformat()
         _insert_audit_with_timestamp(temp_db, "https://example.com", old_timestamp, score=50)
-        # A fresh one saved after the old one
         db.save_audit(_fake_report(), temp_db)
 
         result = cache.check_cache("https://example.com", db_path=temp_db)
