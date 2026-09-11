@@ -1,7 +1,7 @@
 """
 test_db.py
 ----------
-Tests for db.py — the SQLite persistence layer.
+Tests for db.py : the SQLite persistence layer.
 
 Every test uses a temporary, isolated database file (via pytest's
 tmp_path fixture) so tests never touch the real audits.db and can run
@@ -46,7 +46,7 @@ class TestInitDb:
     def test_is_idempotent_safe_to_call_twice(self, tmp_path):
         db_path = tmp_path / "fresh.db"
         db.init_db(db_path)
-        db.init_db(db_path)  # should not raise
+        db.init_db(db_path)  
 
 
 class TestSaveAudit:
@@ -159,7 +159,6 @@ class TestGetScoreTrend:
         db.save_audit(report, temp_db)
         trend = db.get_score_trend("https://example.com", temp_db)
         assert len(trend) == 2
-        # oldest first means the list should be in ascending time order
         assert trend[0]["created_at"] <= trend[1]["created_at"]
 
     def test_trend_entries_have_score_and_timestamp(self, temp_db):
