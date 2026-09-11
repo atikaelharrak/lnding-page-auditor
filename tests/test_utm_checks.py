@@ -1,7 +1,7 @@
 """
 test_utm_checks.py
 -------------------
-Tests for utm_checks.py — the Week 2 tracking & UTM integrity checks.
+Tests for utm_checks.py : the Week 2 tracking & UTM integrity checks.
 
 Covers each of the 5 checks individually, plus the edge case that was
 caught and fixed during manual testing: duplicate query parameter keys
