@@ -1,7 +1,7 @@
 """
 test_checks.py
 ---------------
-Tests for checks.py — the Week 1 technical health checks.
+Tests for checks.py : the Week 1 technical health checks.
 
 Each check is tested for both its "pass" and "fail" branches, using
 synthetic PageData objects built from HTML (no network required).
@@ -166,8 +166,8 @@ class TestRunTechnicalChecksIntegration:
         </body>
         </html>
         '''
-        page = make_page(html, url="http://example.com")  # http, not https
-        page.load_time_ms = 4000  # slow
+        page = make_page(html, url="http://example.com")  
+        page.load_time_ms = 4000  
         results = run_technical_checks(page)
         score = compute_category_score(results)
         assert score < 100
